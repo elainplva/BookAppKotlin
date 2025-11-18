@@ -22,15 +22,24 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun BookAppTheme(){
+fun BookAppTheme() {
     val nav = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavBar(nav) }
-    ) {
-        padding ->
+    ) { padding ->
         NavHost(
             navController = nav,
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(padding)
+        ) {
+            composable(Screen.Home.route) { HomeScreen(nav) }
+            composable(Screen.Login.route) { LoginScreen(nav) }
+            composable(Screen.Favourites.route) { FavouritesScreen(nav) }
+            composable(Screen.Settings.route) { SettingsScreen() }
+            composable(Screen.Details.route) { backStack ->
+                val id = backStack.arguments?.getString("bookId")!!.toInt()
+                DetailsScreen(id, nav)
+            }
+        }
     }
 }
