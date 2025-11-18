@@ -1,46 +1,55 @@
 package com.example.bookapp.navigation
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import com.example.bookapp.navigation.Navigation
-import com.example.bookapp.ui.theme.BookAppTheme
-
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            BookAppTheme {
-                Navigation()
-            }
-        }
-    }
-}
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.bookapp.ui.viewmodel.BookViewModel
 
 @Composable
-fun DetailsScreen(bookId: Int, nav: NavController, viewModel: BookViewModel = viewModel()) {
+fun DetailsScreen(
+    bookId: Int,
+    navController: NavController,
+    viewModel: BookViewModel = viewModel()
+) {
     val book by viewModel.getBook(bookId).collectAsState(initial = null)
-    book?.let {
+    book?.let { book ->
         Column(Modifier.padding(16.dp)) {
-            Text(it.title, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("Author: " + it.author)
+            Text(book.title, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Author: " + book.author)
             Spacer(Modifier.height(20.dp))
-            Text(it.synopsis)
+            Text(book.synopsis)
             Row {
-                IconButton({ viewModel.toggleFavourite(it) }) {
+                IconButton({ viewModel.toggleFavourite(book) }) {
                     Icon(
-                        if (it.isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        null
+                        if (book.isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = null
                     )
                 }
                 if (viewModel.isLoggedIn.collectAsState().value) {
-                    Button({ viewModel.pickPdf(it) }) { Text("Upload PDF") }
+                    Button({ viewModel.pickPdf(book) }) { Text("Upload PDF") }
                 }
-                if (it.pdfPath != null) {
-                    Button({ viewModel.downloadPdf(it.pdfPath!!) }) { Text("Download PDF") }
+                if (book.pdfPath != null) {
+                    Button({ viewModel.downloadPdf(book.pdfPath!!) }) { Text("Download PDF") }
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -48,7 +57,9 @@ fun DetailsScreen(bookId: Int, nav: NavController, viewModel: BookViewModel = vi
             TextField(
                 value = "",
                 onValueChange = {},
-                modifier = Modifier.height(200.dp).fillMaxWidth()
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth()
             )
         }
     }
